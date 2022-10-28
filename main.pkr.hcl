@@ -20,7 +20,7 @@ source "digitalocean" "bullseye" {
   region        = "nyc1"
   size          = "s-1vcpu-512mb-10gb"
   ssh_username  = "root"
-  snapshot_name = "marketplace-pi-hole-vpn-{{timestamp}}"
+  snapshot_name = "marketplace-omr-{{timestamp}}"
 }
 
 build {

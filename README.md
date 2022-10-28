@@ -45,16 +45,70 @@ Slightly more info:
 
 ### OMR Homelab Client Setup Guides
 
-#### UDM Pro SE & Raspberry Pi 4
-
-**Coming Soon**, *the setup I used when creating / testing this image*
-
-#### Other Guides
-
 - [OpenMPTCProuter tutorials page](https://github.com/Ysurac/openmptcprouter/wiki/Tutorials)
 - [Kamru's guide](https://kamrul.dev/aggregate-multiple-internet-with-openmptcprouter/)
 
+#### UDM Pro SE & Raspberry Pi 4
 
+The image below is the setup I used to test the OMR VPS Image. To
+use this setup in the field:
+- Remove the Primary UDM Pro SE from the picture
+- Connect the OMR WAN 1 port (UDM port 5 in the picture below) to
+  your first modem/router, e.g. a Starlink router (preferrably in
+  passthrough mode)
+- Connect the OMR WAN 2 port (UDM port 7 in the picture below) to
+  your second modem/router, e.g. a cellular modem
+
+![UDM Pi Config](images/UDM-Pi-Config.png)
+
+##### UDM Config
+
+- Create 3 VLAN only networks; in the picture above:
+  - OMR is VLAN 10
+  - OMR WAN 1 is VLAN 11
+  - OMR WAN 2 is VLAN 12
+- Create a port profile (OMR VLANs):
+  - Native network is OMR (VLAN 10), i.e. untagged
+  - Tagged networks are:
+    - OMR WAN 1 (VLAN 11)
+    - OMR WAN 2 (VLAN 12)
+- Assign each network and the port profile:
+  - VLAN 10 is on Port 8
+  - VLAN 11 is on Port 5
+  - VLAN 12 is on Port 7
+  - OMR VLANs is on Port 6
+- Connect your cables:
+  - Modem/router 1 to Port 5
+  - Modem/router 2 to Port 7
+  - WAN Port 9 to Port 8
+  - OMR to Port 6
+
+🤞 I didn't forget anything
+
+##### OMR Config
+
+Kamru has an excellent
+[guide](https://kamrul.dev/aggregate-multiple-internet-with-openmptcprouter/)
+on this! It's what I used to setup my OMR. A summary below:
+
+- Set a password
+  - System > Administration
+- **Probably change the LAN subnet as it collides with Starlink**
+  - Network > Interfaces > LAN > Edit
+  - 10.10.10.0/29 is used in the picture above
+- Delete the default WAN ports and create two new ones:
+  - Create one on `eth0.11` interface
+  - Create another on `eth0.12` interface
+  - Set the appropriate protocol for each (DHCP here)
+  - Make sure they are added to WAN under Firewall Settings
+- Go to: System > OpenMPTCProuter > Settings Wizard
+  - Set the Server IP to your OMR VPS
+  - Set the Server Key to your OMR VPS Server Key
+  - Set ISP1 MultiPath TCP to Master
+  - Set IPS2 MultiPath TCP to enabled
+  - Verify protocol and interface for both ISP1 & ISP2
+
+🤞 I didn't forget anything
 
 ## Contribute Changes
 
@@ -153,7 +207,7 @@ upload your SSH public key and get its `SSH_ID`:
       curl -X POST \
       -H "Content-Type: application/json" \
       -H "Authorization: Bearer API_TOKEN" \
-      -d "{\"name\":\"Pi-hole Key\",\"public_key\":\"$(cat ~/.ssh/id_rsa.pub)\"}" \
+      -d "{\"name\":\"OMR Key\",\"public_key\":\"$(cat ~/.ssh/id_rsa.pub)\"}" \
       "https://api.digitalocean.com/v2/account/keys"
 
 
